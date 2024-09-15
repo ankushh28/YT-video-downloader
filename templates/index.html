@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Video Downloader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 130px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            width: 80%;
+            max-width: 600px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #pasteButton {
+            margin-left: 10px;
+            background-color: #007bff;
+        }
+        #pasteButton:hover {
+            background-color: #0056b3;
+        }
+        @media (max-width: 600px) {
+            input[type="text"] {
+                width: 90%;
+            }
+            button {
+                width: 90%;
+                margin-bottom: 10px;
+            }
+            #pasteButton {
+                margin-left: 0;
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>YT Video Downloader</h1>
+    <form action="/download" method="POST">
+        <input id="urlInput" type="text" name="url" placeholder="Enter YouTube Video URL" required>
+        <button type="submit">Download</button>
+        <button type="button" id="pasteButton">Paste</button>
+    </form>
+    
+    <script>
+        document.getElementById('pasteButton').addEventListener('click', async function() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('urlInput').value = text;
+            } catch (err) {
+                alert('Failed to paste text: ' + err);
+            }
+        });
+    </script>
+
+</body>
+</html>
