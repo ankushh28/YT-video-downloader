@@ -15,7 +15,7 @@ def download_video():
     url = request.form['url']
     
     try:
-        yt = YouTube(url)
+        yt = YouTube(url,use_po_token=True)
         stream = yt.streams.get_highest_resolution()
 
         # Download the video to a temporary directory
