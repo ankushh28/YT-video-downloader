@@ -1,30 +1,52 @@
-import requests
-from pytubefix import YouTube
-from flask import Flask, render_template, request, send_file
+from flask import Flask, request, send_file, render_template, redirect, url_for, flash, jsonify
+import yt_dlp
 import os
-import time
+import re
 
 app = Flask(__name__)
+app.secret_key = 'supersecretkey'
+
+DOWNLOAD_FOLDER = 'downloads'
+os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+
+def sanitize_filename(filename):
+    """Sanitize the filename to ensure it's safe for the filesystem."""
+    return re.sub(r'[<>:"/\\|?*]', '', filename)
+
+def progress_hook(d):
+    if d['status'] == 'downloading':
+        # Use this for progress calculation
+        percent = d.get('downloaded_bytes', 0) / d.get('total_bytes', 1) * 100
+        print(f"Progress: {percent:.2f}%")
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/download', methods=['POST'])
-def download_video():
-    url = request.form['url']
-    headers = {'User-Agent': 'your bot 0.1'}
+def download():
+    url = request.form.get('url')
+    if not url:
+        flash('You must provide a YouTube URL.')
+        return redirect(url_for('index'))
+
+    ydl_opts = {
+        'format': 'best',
+        'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title)s.%(ext)s'),
+        'progress_hooks': [progress_hook]
+    }
 
     try:
-                yt = YouTube(url, use_po_token=True)
-                stream = yt.streams.get_highest_resolution()
-                video_file = stream.download(output_path="downloads/")
-                return send_file(video_file, as_attachment=True)
-
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            sanitized_title = sanitize_filename(info_dict['title'])
+            file_path = os.path.join(DOWNLOAD_FOLDER, f"{sanitized_title}.{info_dict['ext']}")
+            flash('Video downloaded successfully!')
+            return send_file(file_path, as_attachment=True)
     except Exception as e:
-        return f"An error occurred: {str(e)}"
+        print(f"Error: {e}")
+        flash('An error occurred while downloading the video. Please check the URL and try again.')
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    if not os.path.exists("downloads"):
-        os.mkdir("downloads")
     app.run(debug=True)

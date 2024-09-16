@@ -1,4 +1,4 @@
-pytubefix
 flask
 gunicorn
 requests
+yt-dlp
