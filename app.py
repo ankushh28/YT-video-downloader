@@ -16,21 +16,11 @@ def download_video():
     headers = {'User-Agent': 'your bot 0.1'}
 
     try:
-        # Retry logic for handling 429 errors
-        for attempt in range(5):  # try up to 5 times
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
                 yt = YouTube(url, use_po_token=True)
                 stream = yt.streams.get_highest_resolution()
                 video_file = stream.download(output_path="downloads/")
                 return send_file(video_file, as_attachment=True)
-            elif response.status_code == 429:
-                # Wait for some time before retrying
-                time.sleep(5 * (attempt + 1))  # Exponential backoff
-            else:
-                return f"Failed to access the video. HTTP status code: {response.status_code}"
-        
-        return "Failed to download video after multiple attempts."
+
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
