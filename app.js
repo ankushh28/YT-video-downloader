@@ -32,13 +32,12 @@ app.post('/download-video', async (req, res) => {
                 }
             }
         );
-
+        console.log(response)
         const videoWithAudio = response.data.formats.find(f => f.type === 'video_with_audio');
         if (!videoWithAudio) {
             return res.status(400).json({ error: "Not able to download video." });
         }
 
-        console.log('Video URL:', videoWithAudio.url);
         const videoStream = await axios.get(videoWithAudio.url, { responseType: 'stream' });
 
         res.setHeader('Content-Disposition', 'attachment; filename="video.mp4"');
