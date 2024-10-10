@@ -13,8 +13,9 @@ app.post('/download-video', async (req, res) => {
             'https://submagic-free-tools.fly.dev/api/youtube-info',
             { 'url': videoUrl }
         );
-        console.log(response)
+        
         const videoWithAudio = response.data.formats.find(f => f.type === 'video_with_audio');
+        console.log(videoWithAudio);
         if (!videoWithAudio) {
             return res.status(400).json({ error: "Not able to download video." });
         }
