@@ -105,25 +105,18 @@
             
 
             try {
-                const response = await fetch('http://localhost:5000/download-video', {
+                const response = await fetch('https://yt-video-downloader-production-f951.up.railway.app/download-video', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ url: videoUrl })
                 });
-
-                if (response.ok) {
-                    const blob = await response.blob(); // Get the video as a Blob (binary data)
-                    const downloadUrl = window.URL.createObjectURL(blob); // Create a URL for the Blob
-                    const a = document.createElement('a');
-                    a.href = downloadUrl;
-                    a.download = 'video.mp4'; // Set default file name
-                    document.body.appendChild(a);
-                    a.click(); // Trigger the download
-                    document.body.removeChild(a); // Clean up
-                    window.URL.revokeObjectURL(downloadUrl); // Release the Blob URL
-                    statusMsg.innerText = '✅ Downloaded!'; // Show downloaded message
+                const data = await response.json();
+                console.log(data.downloadUrl);
+                if (data.downloadUrl) {
+                    window.location.href = data.downloadUrl;
+                    statusMsg.innerText = '✅ Downloaded!';
                 } else {
                     statusMsg.style.display = 'none'
                     errorMsg.style.display = 'block';
